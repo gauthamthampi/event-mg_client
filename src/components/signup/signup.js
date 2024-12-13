@@ -1,21 +1,25 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { localhost } from '../../url';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(''); // State for success message
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const navigate = useNavigate(); // For navigation
 
   const handleSignup = async (e) => {
     e.preventDefault();
 
     // Reset previous errors
     setError('');
+    setSuccess('');
     setNameError('');
     setEmailError('');
     setPasswordError('');
@@ -33,16 +37,22 @@ const Signup = () => {
       setPasswordError('Password is required.');
       return;
     }
-    if (password.length<6) {
-        setPasswordError('Password should contain atleast 6 characters.');
-        return;
-      }
+    if (password.length < 6) {
+      setPasswordError('Password should contain at least 6 characters.');
+      return;
+    }
 
     try {
-      const response = await axios.post(localhost+'/api/signup', { name, email, password });
+      const response = await axios.post(`${localhost}/api/users/signup`, { name, email, password });
       console.log('Signup successful:', response.data);
+
+      // Set success message and redirect after 2 seconds
+      setSuccess('Signup successful! Redirecting to login...');
+      setTimeout(() => {
+        navigate('/login'); // Redirect to login page
+      }, 2000);
     } catch (err) {
-      setError('Signup failed. Please try again.');
+      setError(err.response.data.error);
       console.error('Signup error:', err);
     }
   };
@@ -54,6 +64,9 @@ const Signup = () => {
 
         {/* Error message */}
         {error && <p className="text-red-600 text-center mb-4">{error}</p>}
+
+        {/* Success message */}
+        {success && <p className="text-green-600 text-center mb-4">{success}</p>}
 
         <form onSubmit={handleSignup} className="space-y-6">
           <div>

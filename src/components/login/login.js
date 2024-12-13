@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { localhost } from '../../url';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -8,6 +9,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const navigate = useNavigate()
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,10 +30,16 @@ const Login = () => {
     }
 
     try {
-      const response = await axios.post(localhost+'/api/login', { email, password });
+      const response = await axios.post(localhost+'/api/users/login', { email, password });
       console.log('Login successful:', response.data);
+      navigate("/")
     } catch (err) {
-      setError('Login failed. Please check your credentials and try again.');
+      if(err.response.data.error){
+        setError(err.response.data.error)
+      }else{
+        setError('Login failed. Please check your credentials and try again.');
+
+      }
       console.error('Login error:', err);
     }
   };
