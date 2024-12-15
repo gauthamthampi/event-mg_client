@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { localhost } from '../../url';
 
 const Navbar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,7 +21,7 @@ const Navbar = () => {
 
   const validateForm = () => {
     const newErrors = {};
-
+    
     // Event Title Validation
     if (!newEvent.title) newErrors.title = 'Title is required';
     
@@ -51,7 +52,16 @@ const Navbar = () => {
 
     if (Object.keys(formErrors).length === 0) {
       try {
-        const response = await axios.post('/api/events', newEvent);
+        const token = localStorage.getItem("userToken")
+        const response = await axios.post(
+          localhost+'/api/events/add',
+          newEvent,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, 
+            },
+          }
+        );
         console.log('New Event Added:', response.data);
         toggleModal(); // Close modal after adding event
       } catch (error) {

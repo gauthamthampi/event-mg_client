@@ -31,8 +31,10 @@ const Login = () => {
 
     try {
       const response = await axios.post(localhost+'/api/users/login', { email, password });
+      const { token } = response.data;
+      localStorage.setItem('userToken', token);
       console.log('Login successful:', response.data);
-      navigate("/")
+     navigate('/');
     } catch (err) {
       if(err.response.data.error){
         setError(err.response.data.error)
