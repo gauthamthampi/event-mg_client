@@ -21,7 +21,9 @@ const Navbar = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     // Event Title Validation
     if (!newEvent.title) newErrors.title = 'Title is required';
     
@@ -29,7 +31,14 @@ const Navbar = () => {
     if (!newEvent.description) newErrors.description = 'Description is required';
     
     // Date Validation
-    if (!newEvent.date) newErrors.date = 'Date is required';
+    if (!newEvent.date) {
+      newErrors.date = 'Date is required';
+    } else {
+      const selectedDate = new Date(newEvent.date);
+      if (selectedDate <= today) {
+        newErrors.date = 'Date must be a future date';
+      }
+    }
     
     // Time Validation
     if (!newEvent.time) newErrors.time = 'Time is required';
@@ -42,7 +51,7 @@ const Navbar = () => {
     
     // Maximum Attendees Validation
     if (!newEvent.maxAttendees || newEvent.maxAttendees <= 0) newErrors.maxAttendees = 'Maximum attendees must be a positive number';
-
+    
     return newErrors;
   };
 
@@ -64,6 +73,8 @@ const Navbar = () => {
         );
         console.log('New Event Added:', response.data);
         toggleModal(); // Close modal after adding event
+        alert("New event added")
+        window.location.reload()
       } catch (error) {
         console.error('Error adding event:', error);
         setErrors({ general: 'An error occurred while adding the event' });

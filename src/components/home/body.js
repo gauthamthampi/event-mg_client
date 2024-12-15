@@ -10,6 +10,9 @@ const Body = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [attendeeDetails, setAttendeeDetails] = useState({ name: '', email: '' });
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('')
+
 
   // Fetch events from the backend
   useEffect(() => {
@@ -58,7 +61,7 @@ const Body = () => {
         alert('User is not logged in');
         return;
       }
-  
+
       // Decode the token to get the user ID
       const decodedToken = jwtDecode(token);
       const userId = decodedToken.userId; // Assuming the decoded token has a userId field
@@ -74,13 +77,18 @@ const Body = () => {
           },
         }
       );
-  
-      alert(response.data.message);
+      setSuccessMessage("Confirming Your Booking...")
+      setErrorMessage('');
       setAttendeeDetails({ name: '', email: '' });
-      setIsModalOpen(false);
+      setTimeout(() => setIsModalOpen(false), 2000); // Close modal
+      window.location.reload()
     } catch (error) {
-      console.error('Error booking event:', error.response?.data?.message || error.message);
-      alert('Error booking event: ' + (error.response?.data?.message || 'Server error'));
+      // Display error message in modal
+      setErrorMessage(error.response?.data?.message || 'Error booking event');
+      setTimeout(() => {
+        setErrorMessage('');
+        setIsModalOpen(false); // Close modal
+      }, 2000);
     }
   };
 
@@ -121,7 +129,7 @@ const Body = () => {
               </div>
               <div className="flex flex-col items-center">
                 <div className="w-14 h-14 rounded-full border-2 border-gray-700 text-gray-700 text-2xl font-extrabold flex items-center justify-center">
-                  {event.remainingSeats}
+                  {event.availability}
                 </div>
                 <p className="text-xs text-blue-500 mt-1"> Remaining</p>
               </div>
@@ -149,6 +157,18 @@ const Body = () => {
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg w-96">
             <h2 className="text-xl font-bold mb-4">Enter Attendee Details</h2>
+            {errorMessage && (
+          <div className="alert alert-danger text-red-500" role="alert">
+            {errorMessage}
+          </div>
+      
+        )}
+             {successMessage && (
+          <div className="alert alert-danger text-green-500" role="alert">
+            {successMessage}
+          </div>
+
+        )}
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
                 <label className="block text-gray-700">Name</label>

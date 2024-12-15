@@ -21,8 +21,8 @@ const MyEventsBody = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const token = localStorage.getItem('userToken'); // Assuming token is stored in localStorage
-        const response = await axios.get(localhost+'/api/events/my-events', {
+        const token = localStorage.getItem('userToken');
+        const response = await axios.get(localhost + '/api/events/my-events', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setEvents(response.data);
@@ -42,7 +42,7 @@ const MyEventsBody = () => {
     setAttendeeDetails({
       title: event.title,
       description: event.description,
-      date: event.date,
+      date: event.date, // Ensure date is correctly set from event
       time: event.time,
       location: event.location,
       limit: event.limit,
@@ -75,18 +75,42 @@ const MyEventsBody = () => {
   };
 
   // Submit the edited event details
-  const handleSubmitEdit = (e) => {
+  const handleSubmitEdit = async (e) => {
     e.preventDefault();
-    console.log('Updated Event Details:', attendeeDetails);
-    alert('Event updated successfully!');
-    setIsModalOpen(false);
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await axios.put(
+        `${localhost}/api/events/${selectedEvent._id}`,
+        attendeeDetails,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      console.log('Updated Event Details:', response.data);
+      alert('Event updated successfully!');
+      setIsModalOpen(false);
+      window.location.reload();
+    } catch (error) {
+      console.error('Error updating event:', error);
+      alert('An error occurred while updating the event.');
+    }
   };
 
   // Confirm deletion of the event
-  const handleConfirmDelete = () => {
-    console.log('Event deleted:', selectedEvent);
-    alert('Event deleted successfully!');
-    setIsDeleteModalOpen(false);
+  const handleConfirmDelete = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      await axios.delete(`${localhost}/api/events/${selectedEvent.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log('Event deleted:', selectedEvent);
+      alert('Event deleted successfully!');
+      setIsDeleteModalOpen(false);
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      alert('An error occurred while deleting the event.');
+    }
   };
 
   if (isLoading) {
@@ -139,6 +163,134 @@ const MyEventsBody = () => {
           </div>
         ))}
       </div>
+
+      {/* Edit Event Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96">
+            <h2 className="text-2xl font-semibold mb-4">Edit Event</h2>
+            <form onSubmit={handleSubmitEdit}>
+              <div className="mb-4">
+                <label htmlFor="title" className="block text-sm font-medium">Event Title</label>
+                <input
+                  type="text"
+                  name="title"
+                  id="title"
+                  value={attendeeDetails.title}
+                  onChange={(e) => setAttendeeDetails({ ...attendeeDetails, title: e.target.value })}
+                  className="w-full px-4 py-2 mt-1 border rounded-lg"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="description" className="block text-sm font-medium">Description</label>
+                <textarea
+                  name="description"
+                  id="description"
+                  value={attendeeDetails.description}
+                  onChange={(e) => setAttendeeDetails({ ...attendeeDetails, description: e.target.value })}
+                  className="w-full px-4 py-2 mt-1 border rounded-lg"
+                  rows="4"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="date" className="block text-sm font-medium">Date</label>
+                <input
+                  type="date"
+                  name="date"
+                  id="date"
+                  value={attendeeDetails.date} // Ensure date is set properly here
+                  onChange={(e) => setAttendeeDetails({ ...attendeeDetails, date: e.target.value })}
+                  className="w-full px-4 py-2 mt-1 border rounded-lg"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="time" className="block text-sm font-medium">Time</label>
+                <input
+                  type="time"
+                  name="time"
+                  id="time"
+                  value={attendeeDetails.time}
+                  onChange={(e) => setAttendeeDetails({ ...attendeeDetails, time: e.target.value })}
+                  className="w-full px-4 py-2 mt-1 border rounded-lg"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="location" className="block text-sm font-medium">Location</label>
+                <input
+                  type="text"
+                  name="location"
+                  id="location"
+                  value={attendeeDetails.location}
+                  onChange={(e) => setAttendeeDetails({ ...attendeeDetails, location: e.target.value })}
+                  className="w-full px-4 py-2 mt-1 border rounded-lg"
+                  required
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="limit" className="block text-sm font-medium">Attendee Limit</label>
+                <input
+                  type="number"
+                  name="limit"
+                  id="limit"
+                  value={attendeeDetails.limit}
+                  onChange={(e) => setAttendeeDetails({ ...attendeeDetails, limit: e.target.value })}
+                  className="w-full px-4 py-2 mt-1 border rounded-lg"
+                  required
+                />
+              </div>
+
+              <div className="flex justify-between">
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                >
+                  Save Changes
+                </button>
+                <button
+                  type="button"
+                  onClick={handleModalClose}
+                  className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+                >
+                  Close
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96">
+            <h2 className="text-2xl font-semibold mb-4">Confirm Deletion</h2>
+            <p className="text-gray-800 mb-4">Are you sure you want to delete this event?</p>
+            <div className="flex justify-between">
+              <button
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                onClick={handleConfirmDelete}
+              >
+                Yes, Delete
+              </button>
+              <button
+                className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+                onClick={handleDeleteModalClose}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
