@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { localhost } from '../../url';
 import {jwtDecode} from 'jwt-decode';
+import { format } from 'date-fns';
 
 
 const Body = () => {
@@ -117,8 +118,10 @@ const Body = () => {
                 <p className="text-gray-600 mb-1">
                   <span className="font-medium">📍:</span> {event.location}
                 </p>
-                <p className="text-gray-600 mb-1">
-                  <span className="font-medium">📅:</span> {event.date}
+                <p className="text-gray-600 mb-1">📅:
+                <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+                {format(new Date(event.date), 'MMMM dd, yyyy')}
+              </span>
                 </p>
                 <p className="text-gray-600 mb-1">
                   <span className="font-medium">⏰:</span> {event.time}
