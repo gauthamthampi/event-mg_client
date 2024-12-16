@@ -91,8 +91,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('/api/logout');
-      // Redirect to login or homepage after successful logout
+      localStorage.removeItem("userToken")
       window.location.href = '/login'; 
     } catch (error) {
       console.error('Error logging out:', error);

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { localhost } from '../../url';
 import { format } from 'date-fns'; 
+import {  useNavigate } from 'react-router-dom';
 
 const MyEventsBody = () => {
   const [events, setEvents] = useState([]);
@@ -17,6 +18,7 @@ const MyEventsBody = () => {
     maxAttendees: '',
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const navigate = useNavigate()
 
   // Fetch events from the backend
   useEffect(() => {
@@ -34,7 +36,14 @@ const MyEventsBody = () => {
       }
     };
 
+    const checkLogin = async() => {
+      if(!localStorage.getItem("userToken")){
+        navigate("/login")
+      }
+    }
+
     fetchEvents();
+    checkLogin()
   }, []);
 
   // Open the edit modal with the event details

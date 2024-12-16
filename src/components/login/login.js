@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { localhost } from '../../url';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,14 @@ const Login = () => {
   const [passwordError, setPasswordError] = useState('');
   const navigate = useNavigate()
 
+  useEffect(()=>{
+    const checkLogin = async() => {
+      if(localStorage.getItem('userToken')){
+        navigate('/')
+      }
+    }
+    checkLogin()
+  },[])
   const handleLogin = async (e) => {
     e.preventDefault();
 

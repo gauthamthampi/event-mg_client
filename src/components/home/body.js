@@ -3,6 +3,7 @@ import axios from 'axios';
 import { localhost } from '../../url';
 import {jwtDecode} from 'jwt-decode';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 
 const Body = () => {
@@ -13,6 +14,7 @@ const Body = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('')
+  const navigate = useNavigate()
 
 
   // Fetch events from the backend
@@ -25,7 +27,12 @@ const Body = () => {
         console.error('Error fetching events:', error.message);
       }
     };
-    fetchEvents();
+    const checkLogin = async() => {
+      if(!localStorage.getItem('userToken')){
+        navigate("/login")
+      }
+    }
+    fetchEvents()
   }, []);
 
   // Filter events based on search query
